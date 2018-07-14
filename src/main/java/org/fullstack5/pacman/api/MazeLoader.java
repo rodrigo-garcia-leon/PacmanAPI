@@ -4,7 +4,7 @@ import org.fullstack5.pacman.api.models.Maze;
 import org.fullstack5.pacman.api.models.Position;
 
 import javax.imageio.ImageIO;
-import java.awt.Color;
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -28,7 +28,7 @@ public final class MazeLoader {
     private static final int COLOR_INKY_SPAWN = -16711681; // new Color(0, 255, 255).getRGB();
     private static final int COLOR_CLYDE_SPAWN = -14066; // new Color(255, 201, 14).getRGB();
 
-    static Maze loadMaze(final int mazeId) throws IOException {
+    public static Maze loadMaze(final int mazeId) throws IOException {
         final String filename = String.format("src/main/resources/mazes/maze%s.png", mazeId);
         final Path path = Paths.get(filename);
 //        System.out.println(path.toAbsolutePath().toString());
