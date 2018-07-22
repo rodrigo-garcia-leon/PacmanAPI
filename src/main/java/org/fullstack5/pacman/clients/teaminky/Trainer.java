@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 public class Trainer implements Runnable {
-    private final long gameDelay = 0;
+    private final long gameDelay = 30;
     private Maze maze;
     private long step;
     private GameRunner gameRunner;
@@ -34,7 +34,7 @@ public class Trainer implements Runnable {
         }
 
         ghostAI = new AStarGhostAI(maze);
-        pacmanAI = new DQNPacmanAI();
+        pacmanAI = new DQNPacmanAI(maze);
     }
 
     public static void main(final String... args) {
