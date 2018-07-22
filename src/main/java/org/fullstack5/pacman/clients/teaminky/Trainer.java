@@ -9,6 +9,7 @@ import org.fullstack5.pacman.api.models.response.GameState;
 import org.fullstack5.pacman.clients.teaminky.game.GameRunner;
 import org.fullstack5.pacman.clients.teaminky.game.PacmanGui;
 import org.fullstack5.pacman.clients.teaminky.ghosts.AStarGhostAI;
+import org.fullstack5.pacman.clients.teaminky.ghosts.DQNPacmanAI;
 import org.fullstack5.pacman.clients.teampacman.ClientUtils;
 
 import java.io.IOException;
@@ -23,6 +24,7 @@ public class Trainer implements Runnable {
     private GameRunner gameRunner;
     private PacmanGui gui;
     private AStarGhostAI ghostAI;
+    private DQNPacmanAI pacmanAI;
 
     private Trainer() {
         try {
@@ -32,6 +34,7 @@ public class Trainer implements Runnable {
         }
 
         ghostAI = new AStarGhostAI(maze);
+        pacmanAI = new DQNPacmanAI();
     }
 
     public static void main(final String... args) {
@@ -47,7 +50,7 @@ public class Trainer implements Runnable {
             checkGameRunner();
             gameState = gameRunner.createState();
             updateGui(gameState);
-            updatePacman();
+            updatePacman(gameState);
             updateGhosts(gameState);
             gameRunner.performStep();
             waitGameDelay();
@@ -90,8 +93,9 @@ public class Trainer implements Runnable {
         gui.updateState(gameState);
     }
 
-    private void updatePacman() {
-        gameRunner.setDirection(Direction.random(), Piece.Type.PACMAN);
+    private void updatePacman(GameState gameState) {
+        Direction direction = pacmanAI.runAI(gameState);
+        gameRunner.setDirection(direction, Piece.Type.PACMAN);
     }
 
     private void updateGhosts(GameState gameState) {
