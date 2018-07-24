@@ -104,4 +104,43 @@ public final class DQNGameState {
         ghosts.add(gameState.getClyde());
         return ghosts;
     }
+
+    public float[][][][] getX() {
+        int cols = 19;
+        int rows = 21;
+
+        float[][][][] matrix_x = new float[1][cols][rows][6];
+        float[][] subMatrix;
+
+        for (int k = 0; k < 6; k++) {
+            subMatrix = getSubMatrix(k);
+
+            for (int i = 0; i < cols; i++) {
+                for (int j = 0; j < rows; j++) {
+                    matrix_x[0][i][j][k] = subMatrix[i][j];
+                }
+            }
+        }
+
+        return matrix_x;
+    }
+
+    private float[][] getSubMatrix(int index) {
+        switch (index) {
+            case 0:
+                return walls;
+            case 1:
+                return pacman;
+            case 2:
+                return dot;
+            case 3:
+                return capsules;
+            case 4:
+                return ghosts;
+            case 5:
+                return scaredGhosts;
+            default:
+                return walls;
+        }
+    }
 }

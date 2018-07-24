@@ -3,14 +3,17 @@ package org.fullstack5.pacman.clients.teaminky.ghosts;
 import org.fullstack5.pacman.api.models.Direction;
 import org.fullstack5.pacman.api.models.Maze;
 import org.fullstack5.pacman.api.models.response.GameState;
+import org.fullstack5.pacman.clients.teaminky.models.DQN;
 import org.fullstack5.pacman.clients.teaminky.models.DQNGameState;
 
 public class DQNPacmanAI {
     private Maze maze;
     private DQNGameState previousState;
+    private DQN dqn;
 
     public DQNPacmanAI(Maze maze) {
         this.maze = maze;
+        dqn = new DQN();
     }
 
     public Direction runAI(GameState gameState) {
@@ -31,6 +34,6 @@ public class DQNPacmanAI {
     }
 
     private Direction getMove(DQNGameState state) {
-        return Direction.random();
+        return dqn.getMove(state);
     }
 }
