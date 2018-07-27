@@ -1,14 +1,18 @@
 package org.fullstack5.pacman.clients.teaminky.models;
 
 import org.fullstack5.pacman.api.models.Direction;
-import org.tensorflow.SavedModelBundle;
+import org.tensorflow.Graph;
+import org.tensorflow.Session;
 import org.tensorflow.Tensor;
 
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.List;
 
 public class DQN {
-    String exportDir = "/Users/rodrigogarcialeon/Repositories/ing/PacmanDQN/export";
-    SavedModelBundle model;
+    Graph graph;
+    Session sess;
+    String modelPath = "/Users/rodrigogarcialeon/Repositories/ing/PacmanAPI/src/main/java/org/fullstack5/pacman/clients/teaminky/models/graph.pb";
 
     public DQN() {
         init();
@@ -16,13 +20,17 @@ public class DQN {
 
     public void init() {
         try {
-            model = SavedModelBundle.load(this.exportDir, "serve");
+            final byte[] graphDef = Files.readAllBytes(Paths.get(modelPath));
+            graph = new Graph();
+            sess = new Session(graph);
+            graph.importGraphDef(graphDef);
+            sess.runner().addTarget("init").run();
         } catch (Exception e) {
         }
     }
 
     public int getGlobalStep() {
-        return model.session().runner()
+        return sess.runner()
                 .fetch("global_step")
                 .run()
                 .get(0)
@@ -37,13 +45,13 @@ public class DQN {
         Tensor<Float> terminals = Tensor.create(0.0f, Float.class);
         float[][] y = new float[1][4];
 
-        model.session().runner()
-                .feed("qnet_x", x)
-                .feed("qnet_q_t", q_t)
-                .feed("qnet_actions", actions)
-                .feed("qnet_rewards", rewards)
-                .feed("qnet_terminals", terminals)
-                .fetch("qnet_fc4_outputs")
+        sess.runner()
+                .feed("x", x)
+                .feed("q_t", q_t)
+                .feed("actions", actions)
+                .feed("rewards", rewards)
+                .feed("terminals", terminals)
+                .fetch("fc4_outputs")
                 .run()
                 .get(0)
                 .copyTo(y);
@@ -88,13 +96,13 @@ public class DQN {
 
         float[][] y = new float[experiences.size()][4];
 
-        model.session().runner()
-                .feed("qnet_x", t_x)
-                .feed("qnet_q_t", t_q)
-                .feed("qnet_actions", t_actions)
-                .feed("qnet_rewards", t_rewards)
-                .feed("qnet_terminals", t_terminals)
-                .fetch("qnet_fc4_outputs")
+        sess.runner()
+                .feed("x", t_x)
+                .feed("q_t", t_q)
+                .feed("actions", t_actions)
+                .feed("rewards", t_rewards)
+                .feed("terminals", t_terminals)
+                .fetch("fc4_outputs")
                 .run()
                 .get(0)
                 .copyTo(y);
@@ -113,12 +121,12 @@ public class DQN {
         t_x = Tensor.create(previousStates, Float.class);
         t_q = Tensor.create(q, Float.class);
 
-        model.session().runner()
-                .feed("qnet_x", t_x)
-                .feed("qnet_q_t", t_q)
-                .feed("qnet_actions", t_actions)
-                .feed("qnet_rewards", t_rewards)
-                .feed("qnet_terminals", t_terminals)
+        sess.runner()
+                .feed("x", t_x)
+                .feed("q_t", t_q)
+                .feed("actions", t_actions)
+                .feed("rewards", t_rewards)
+                .feed("terminals", t_terminals)
                 .addTarget("train")
                 .run();
     }

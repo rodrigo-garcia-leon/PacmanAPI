@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 public class Trainer implements Runnable {
-    private final long gameDelay = 0;
+    private final long gameDelay = 10;
     private Maze maze;
     private GameRunner gameRunner;
     private PacmanGui gui;
