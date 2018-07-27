@@ -49,13 +49,14 @@ public class DQNPacmanAI {
             }
             localCount++;
             updateEps();
+            updateGlobalStep();
         }
         previousState = currentState;
         return getMove(currentState);
     }
 
     private void updateEps() {
-        eps = Math.max(epsFinal, 1.0f - localCount / epsStep);
+        eps = Math.max(epsFinal, 1.0f - globalStep / epsStep);
     }
 
     private void observationStep(DQNGameState state) {
@@ -83,7 +84,7 @@ public class DQNPacmanAI {
     }
 
     private void train() {
-        List<Integer> indexes = IntStream.rangeClosed(0, experiences.size())
+        List<Integer> indexes = IntStream.rangeClosed(0, experiences.size() - 1)
                 .boxed()
                 .collect(Collectors.toList());
 
