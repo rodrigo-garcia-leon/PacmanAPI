@@ -4,6 +4,8 @@ import org.fullstack5.pacman.api.models.Direction;
 import org.tensorflow.SavedModelBundle;
 import org.tensorflow.Tensor;
 
+import java.util.List;
+
 public class DQN {
     String exportDir = "/Users/rodrigogarcialeon/Repositories/ing/PacmanDQN/export";
     SavedModelBundle model;
@@ -57,6 +59,10 @@ public class DQN {
         }
 
         return getDirectionFromActionIndex(maxIndex);
+    }
+
+    public void train(List<Experience> experiences) {
+
     }
 
     private Direction getDirectionFromActionIndex(int index) {

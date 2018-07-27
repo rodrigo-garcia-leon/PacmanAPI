@@ -20,7 +20,6 @@ import java.util.concurrent.TimeUnit;
 public class Trainer implements Runnable {
     private final long gameDelay = 30;
     private Maze maze;
-    private long step;
     private GameRunner gameRunner;
     private PacmanGui gui;
     private AStarGhostAI ghostAI;
@@ -45,8 +44,7 @@ public class Trainer implements Runnable {
     public final void run() {
         GameState gameState;
 
-        long MAX_STEP = 1000;
-        while (step < MAX_STEP) {
+        while (true) {
             checkGameRunner();
             gameState = gameRunner.createState();
             updateGui(gameState);
@@ -59,7 +57,6 @@ public class Trainer implements Runnable {
                 pacmanAI.resetState();
             }
             waitGameDelay();
-            step++;
         }
     }
 
