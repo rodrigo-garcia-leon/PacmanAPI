@@ -11,6 +11,7 @@ public class DQNPacmanAI {
     private DQNGameState previousState;
     private DQN dqn;
     private int globalStep;
+    private float eps = 1.0f;
 
     public DQNPacmanAI(Maze maze) {
         this.maze = maze;
@@ -36,6 +37,6 @@ public class DQNPacmanAI {
     }
 
     private Direction getMove(DQNGameState state) {
-        return dqn.getMove(state);
+        return Math.random() > eps ? dqn.getMove(state) : Direction.random();
     }
 }
