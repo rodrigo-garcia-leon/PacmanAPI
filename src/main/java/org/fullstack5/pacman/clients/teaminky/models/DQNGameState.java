@@ -4,11 +4,13 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.fullstack5.pacman.api.models.Maze;
 import org.fullstack5.pacman.api.models.Position;
+import org.fullstack5.pacman.api.models.Result;
 import org.fullstack5.pacman.api.models.response.GameState;
 import org.fullstack5.pacman.api.models.response.MovingPiece;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @AllArgsConstructor
 @Getter
@@ -19,6 +21,7 @@ public final class DQNGameState {
     float[][] capsules;
     float[][] ghosts;
     float[][] scaredGhosts;
+    Optional<Result> result;
 
     public static DQNGameState createState(Maze maze, GameState gameState) {
         return new DQNGameState(
@@ -27,7 +30,8 @@ public final class DQNGameState {
                 DQNGameState.createDot(maze, gameState),
                 DQNGameState.createCapsules(maze, gameState),
                 DQNGameState.createGhosts(maze, gameState),
-                DQNGameState.createScaredGhosts(maze, gameState)
+                DQNGameState.createScaredGhosts(maze, gameState),
+                gameState.getResult()
         );
     }
 
@@ -103,6 +107,30 @@ public final class DQNGameState {
         ghosts.add(gameState.getInky());
         ghosts.add(gameState.getClyde());
         return ghosts;
+    }
+
+    public int getNumScaredGhosts() {
+        return countMatrix(scaredGhosts);
+    }
+
+    public int getNumDots() {
+        return countMatrix(dot);
+    }
+
+    public int getNumCapsules() {
+        return countMatrix(capsules);
+    }
+
+    private int countMatrix(float[][] matrix) {
+        int count = 0;
+        for (int i = 0; i < matrix.length; i++) {
+            for (int j = 0; j < matrix[i].length; j++) {
+                if (matrix[i][j] > 0.0f) {
+                    count++;
+                }
+            }
+        }
+        return count;
     }
 
     public float[][][][] getX() {

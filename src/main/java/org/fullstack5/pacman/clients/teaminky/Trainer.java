@@ -53,6 +53,11 @@ public class Trainer implements Runnable {
             updatePacman(gameState);
             updateGhosts(gameState);
             gameRunner.performStep();
+            if (gameRunner.isFinished()) {
+                gameState = gameRunner.createState();
+                updatePacman(gameState);
+                pacmanAI.resetState();
+            }
             waitGameDelay();
             step++;
         }
