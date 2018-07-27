@@ -32,8 +32,12 @@ public class DQNPacmanAI {
     public DQNPacmanAI(Maze maze) {
         this.maze = maze;
         dqn = new DQN();
-        globalStep = dqn.getGlobalStep();
         experiences = new LinkedList<>();
+        updateGlobalStep();
+    }
+
+    private void updateGlobalStep() {
+        globalStep = dqn.getGlobalStep();
     }
 
     public Direction runAI(GameState gameState) {
