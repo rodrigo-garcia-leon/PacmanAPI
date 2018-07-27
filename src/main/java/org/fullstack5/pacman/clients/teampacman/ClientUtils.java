@@ -6,7 +6,6 @@ import org.fullstack5.pacman.api.models.Piece;
 import org.fullstack5.pacman.api.models.Position;
 import org.fullstack5.pacman.api.models.response.GameState;
 import org.fullstack5.pacman.api.models.response.MovingPiece;
-import org.fullstack5.pacman.clients.teampacman.models.WeightedPosition;
 
 import java.util.ArrayList;
 import java.util.Arrays;

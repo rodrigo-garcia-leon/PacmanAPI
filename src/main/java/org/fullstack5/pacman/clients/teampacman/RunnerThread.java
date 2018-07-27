@@ -4,7 +4,7 @@ import org.fullstack5.pacman.api.models.response.GameState;
 
 /**
  * Thread responsible for checking for a new state continuously, then executing the AI with that new state.
- *
+ * <p>
  * Needed because the Flux Thread cannot block on http requests.
  */
 public final class RunnerThread extends Thread {
@@ -33,13 +33,13 @@ public final class RunnerThread extends Thread {
                 }
                 try {
                     ai.runAI(gameState);
-                } catch(RuntimeException e) {
+                } catch (RuntimeException e) {
                     e.printStackTrace();
                     System.exit(-1);
                     throw e;
                 }
                 gameState = null;
-                System.out.println("Calculation took " + (System.currentTimeMillis() - start) + "ms");
+//                System.out.println("Calculation took " + (System.currentTimeMillis() - start) + "ms");
             }
             try {
                 Thread.sleep(10);

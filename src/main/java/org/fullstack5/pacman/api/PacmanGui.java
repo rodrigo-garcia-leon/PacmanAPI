@@ -6,10 +6,8 @@ import org.fullstack5.pacman.api.models.response.GameState;
 import org.fullstack5.pacman.api.models.response.MovingPiece;
 import reactor.core.publisher.Flux;
 
-import javax.swing.JFrame;
-import javax.swing.JPanel;
-import java.awt.Color;
-import java.awt.Graphics;
+import javax.swing.*;
+import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.time.Duration;
@@ -25,12 +23,9 @@ public final class PacmanGui {
 
     private final String gameId;
     private final Maze maze;
-
-    private GameState state;
-
     private final long msPerTick;
     private final long msPerFrame;
-
+    private GameState state;
     private int renderProgress = 0;
     private boolean stopped = false;
 
@@ -41,18 +36,32 @@ public final class PacmanGui {
         msPerFrame = msPerTick / FRAMES_PER_TICK;
     }
 
+    private static int calcDrawX(final MovingPiece piece, final int renderProgress) {
+        if (piece.getOldPosition() == null || piece.getOldPosition().equals(piece.getCurrentPosition())) {
+            return GRID_WIDTH * piece.getCurrentPosition().getX();
+        }
+        return GRID_WIDTH * piece.getOldPosition().getX() + GRID_WIDTH * renderProgress * piece.getDirection().getDeltaX() / FRAMES_PER_TICK;
+    }
+
+    private static int calcDrawY(final MovingPiece piece, final int renderProgress) {
+        if (piece.getOldPosition() == null || piece.getOldPosition().equals(piece.getCurrentPosition())) {
+            return GRID_WIDTH * piece.getCurrentPosition().getY();
+        }
+        return GRID_WIDTH * piece.getOldPosition().getY() + GRID_WIDTH * renderProgress * piece.getDirection().getDeltaY() / FRAMES_PER_TICK;
+    }
+
     public final void initialize(final Flux<GameState> flux) {
         flux.subscribe(state -> {
             this.state = state;
-            System.out.println("Received " + state);
+//            System.out.println("Received " + state);
             renderProgress = 0;
         },
         state -> {
-            System.err.println("error");
+//            System.err.println("error");
         },
         () -> {
             stopped = true;
-            System.out.println("complete");
+//            System.out.println("complete");
         });
 
         final JFrame frame = new JFrame();
@@ -188,19 +197,5 @@ public final class PacmanGui {
                 }
             }
         }
-    }
-
-    private static int calcDrawX(final MovingPiece piece, final int renderProgress) {
-        if (piece.getOldPosition() == null || piece.getOldPosition().equals(piece.getCurrentPosition()) ) {
-            return GRID_WIDTH * piece.getCurrentPosition().getX();
-        }
-        return GRID_WIDTH * piece.getOldPosition().getX() + GRID_WIDTH * renderProgress * piece.getDirection().getDeltaX() / FRAMES_PER_TICK;
-    }
-
-    private static int calcDrawY(final MovingPiece piece, final int renderProgress) {
-        if (piece.getOldPosition() == null || piece.getOldPosition().equals(piece.getCurrentPosition())) {
-            return GRID_WIDTH * piece.getCurrentPosition().getY();
-        }
-        return GRID_WIDTH * piece.getOldPosition().getY() + GRID_WIDTH * renderProgress * piece.getDirection().getDeltaY() / FRAMES_PER_TICK;
     }
 }

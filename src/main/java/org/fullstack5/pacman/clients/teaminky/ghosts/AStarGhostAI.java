@@ -24,14 +24,14 @@ public final class AStarGhostAI {
     }
 
     public final List<Direction> runAI(final GameState state) {
-        System.out.println("\nTurn " + state.getTime());
+//        System.out.println("\nTurn " + state.getTime());
         List<Direction> directions = new ArrayList<>();
         for (int i = 0; i < GHOST_COUNT; i++) {
             final MovingPiece ghost = ClientUtils.getGhost(state, i);
             final MovingPiece pacman = state.getPacman();
             final List<WeightedPosition> path = calculateAStarPath(maze, ghost, pacman);
-            System.out.println("Found path for " + ClientUtils.getGhostType(i) + ":\n" + path);
-            System.out.println("Giving order " + path.get(0).getDirectionToPosition());
+//            System.out.println("Found path for " + ClientUtils.getGhostType(i) + ":\n" + path);
+//            System.out.println("Giving order " + path.get(0).getDirectionToPosition());
             directions.add(path.get(0).getDirectionToPosition());
         }
         return directions;
@@ -41,9 +41,9 @@ public final class AStarGhostAI {
         final TreeSet<WeightedPosition> options = new TreeSet<>();
         final Collection<WeightedPosition> neighbouring = findNeighbouring(maze, origin.getCurrentPosition(), target.getCurrentPosition(), null);
         options.addAll(neighbouring);
-        System.out.println("Position: " + origin.getCurrentPosition() + " (was " + origin.getOldPosition() + ")");
-        System.out.println("Neighbouring: " + neighbouring);
-        System.out.println("Option set: " + options);
+//        System.out.println("Position: " + origin.getCurrentPosition() + " (was " + origin.getOldPosition() + ")");
+//        System.out.println("Neighbouring: " + neighbouring);
+//        System.out.println("Option set: " + options);
         final List<WeightedPosition> doneList = new ArrayList<>();
         while (!options.isEmpty()) {
             final WeightedPosition next = options.first();

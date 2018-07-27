@@ -1,6 +1,12 @@
 package org.fullstack5.pacman.api;
 
-import org.fullstack5.pacman.api.models.*;
+import org.fullstack5.pacman.api.models.Direction;
+import org.fullstack5.pacman.api.models.Game;
+import org.fullstack5.pacman.api.models.GhostsRunner;
+import org.fullstack5.pacman.api.models.Maze;
+import org.fullstack5.pacman.api.models.PacmanRunner;
+import org.fullstack5.pacman.api.models.Piece;
+import org.fullstack5.pacman.api.models.PlayerType;
 import org.fullstack5.pacman.api.models.response.GameRegistered;
 import org.fullstack5.pacman.api.models.response.GameState;
 import org.fullstack5.pacman.api.models.response.PlayerRegistered;
@@ -83,8 +89,8 @@ public class GameServiceImpl implements GameService {
     @Override
     public void performMove(String gameId, String authId, Direction direction, Piece.Type type) {
         final GameRunner runner = games.get(gameId);
-        if (runner == null ) {
-            System.err.println("Received order for gameId = " + gameId + ", but game has already ended!");
+        if (runner == null) {
+//            System.err.println("Received order for gameId = " + gameId + ", but game has already ended!");
             return;
         }
         runner.setDirection(authId, direction, type);

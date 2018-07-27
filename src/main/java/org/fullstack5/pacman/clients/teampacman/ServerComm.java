@@ -69,7 +69,7 @@ public final class ServerComm {
                 .retrieve()
                 .bodyToFlux(GameState.class)
                 .doOnError(throwable -> {
-                    System.out.println("Stream terminated remotely. Exiting");
+//                    System.out.println("Stream terminated remotely. Exiting");
                     System.exit(1);
                 });
     }

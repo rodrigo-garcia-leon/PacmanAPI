@@ -8,7 +8,11 @@ import org.fullstack5.pacman.api.models.response.GameRegistered;
 import org.fullstack5.pacman.api.models.response.GameState;
 import org.fullstack5.pacman.api.models.response.PlayerRegistered;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Flux;
 
 @RestController
@@ -55,7 +59,7 @@ public class PacmanApiController {
     @PostMapping(path = "/perform-move")
     public void performMove(
             @RequestBody MoveRequest request) {
-        System.out.println(String.format("/perform-move called with %s %s", request.getType(), request.getDirection()));
+//        System.out.println(String.format("/perform-move called with %s %s", request.getType(), request.getDirection()));
         service.performMove(
                 request.getGameId(),
                 request.getAuthId(),
