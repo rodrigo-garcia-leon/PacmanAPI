@@ -4,6 +4,7 @@ import org.fullstack5.pacman.api.models.Direction;
 import org.tensorflow.Graph;
 import org.tensorflow.Session;
 import org.tensorflow.Tensor;
+import org.tensorflow.Tensors;
 
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -13,6 +14,9 @@ public class DQN {
     Graph graph;
     Session sess;
     String modelPath = "/Users/rodrigogarcialeon/Repositories/ing/PacmanAPI/src/main/java/org/fullstack5/pacman/clients/teaminky/models/graph.pb";
+    String checkpointPath = "/Users/rodrigogarcialeon/Repositories/ing/PacmanAPI/src/main/java/org/fullstack5/pacman/clients/teaminky/models/checkpoint";
+    Tensor<String> checkpointPrefix;
+    long checkpointCount = 0;
 
     public DQN() {
         init();
@@ -24,7 +28,14 @@ public class DQN {
             graph = new Graph();
             sess = new Session(graph);
             graph.importGraphDef(graphDef);
-            sess.runner().addTarget("init").run();
+            checkpointPrefix = Tensors.create(Paths.get(checkpointPath, "ckpt").toString());
+
+            if (Files.exists(Paths.get(checkpointPath))) {
+                sess.runner().feed("save/Const", checkpointPrefix).addTarget("save/restore_all").run();
+            } else {
+                sess.runner().addTarget("init").run();
+            }
+
         } catch (Exception e) {
         }
     }
@@ -129,6 +140,15 @@ public class DQN {
                 .feed("terminals", t_terminals)
                 .addTarget("train")
                 .run();
+
+        checkpointCount++;
+        if (checkpointCount % 1000 == 0) {
+            saveCheckpoint();
+        }
+    }
+
+    private void saveCheckpoint() {
+        sess.runner().feed("save/Const", checkpointPrefix).addTarget("save/control_dependency").run();
     }
 
     private float[] getActionFromDirection(Direction direction) {

@@ -16,17 +16,17 @@ import java.util.stream.IntStream;
 
 public class DQNPacmanAI {
     private final float epsFinal = 0.1f;
-    private final float epsStep = 10000.0f;
+    private final float epsStep = 100000.0f;
     private Maze maze;
     private DQNGameState previousState;
     private DQN dqn;
     private int globalStep;
     private float eps = 1.0f;
     private Direction lastDirection;
-    private int replayMemorySize = 100000;
+    private int replayMemorySize = 10000;
     private LinkedList<Experience> experiences;
     private int localCount = 0;
-    private int trainingStart = 50;
+    private int trainingStart = 10000;
     private int batchSize = 32;
 
     public DQNPacmanAI(Maze maze) {
