@@ -10,10 +10,12 @@ public class DQNPacmanAI {
     private Maze maze;
     private DQNGameState previousState;
     private DQN dqn;
+    private int globalStep;
 
     public DQNPacmanAI(Maze maze) {
         this.maze = maze;
         dqn = new DQN();
+        globalStep = dqn.getGlobalStep();
     }
 
     public Direction runAI(GameState gameState) {

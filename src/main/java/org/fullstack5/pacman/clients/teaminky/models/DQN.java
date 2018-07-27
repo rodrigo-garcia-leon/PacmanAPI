@@ -19,6 +19,14 @@ public class DQN {
         }
     }
 
+    public int getGlobalStep() {
+        return model.session().runner()
+                .fetch("global_step")
+                .run()
+                .get(0)
+                .intValue();
+    }
+
     public Direction getMove(DQNGameState state) {
         Tensor<Float> x = Tensor.create(state.getX(), Float.class);
         Tensor<Float> q_t = Tensor.create(0.0f, Float.class);
