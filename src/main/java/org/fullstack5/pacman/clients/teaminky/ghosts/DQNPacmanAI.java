@@ -15,25 +15,27 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 public class DQNPacmanAI {
-    private final float epsFinal = 0.1f;
-    private final float epsStep = 100000.0f;
-    private Maze maze;
+    private static final float epsFinal = 0.1f;
+    private static final float epsStep = 100000.0f;
+    private static final int replayMemorySize = 10000;
+    private static final int trainingStart = 10000;
+    private static final int batchSize = 32;
+    private static final float REWARD_WON = 100.0f;
+    private static final float REWARD_LOST = -100.0f;
+    private static final float REWARD_GHOST_EATEN = 50.0f;
+    private static final float REWARD_DOT_OR_CAPSULE_EATEN = 10.0f;
+    private static final float REWARD_PENALTY = -1.0f;
+    private final Maze maze;
+    private final DQN dqn = new DQN();
+    private final LinkedList<Experience> experiences = new LinkedList<>();
     private DQNGameState previousState;
-    private DQN dqn;
     private int globalStep;
     private float eps = 1.0f;
     private Direction lastDirection;
-    private int replayMemorySize = 10000;
-    private LinkedList<Experience> experiences;
-    private int localCount = 0;
-    private int trainingStart = 10000;
-    private int batchSize = 32;
+    private int localCount;
 
     public DQNPacmanAI(Maze maze) {
         this.maze = maze;
-        dqn = new DQN();
-        experiences = new LinkedList<>();
-        updateGlobalStep();
     }
 
     private void updateGlobalStep() {
@@ -42,17 +44,24 @@ public class DQNPacmanAI {
 
     public Direction runAI(GameState gameState) {
         DQNGameState currentState = DQNGameState.createState(maze, gameState);
+
         if (previousState != null) {
             observationStep(currentState);
+
             if (localCount > trainingStart) {
                 train();
+            } else {
+                localCount++;
             }
-            localCount++;
-            updateEps();
+
             updateGlobalStep();
+            updateEps();
         }
+
         previousState = currentState;
-        return getMove(currentState);
+        lastDirection = getMove(currentState);
+
+        return lastDirection;
     }
 
     private void updateEps() {
@@ -62,6 +71,7 @@ public class DQNPacmanAI {
     private void observationStep(DQNGameState state) {
         float reward = calculateReward(state);
         Experience experience = new Experience(previousState, reward, lastDirection, state);
+
         experiences.addFirst(experience);
         if (experiences.size() > replayMemorySize) {
             experiences.removeLast();
@@ -71,14 +81,14 @@ public class DQNPacmanAI {
     private float calculateReward(DQNGameState state) {
         if (state.getResult().isPresent()) {
             Result result = state.getResult().get();
-            return result == Result.PACMAN_LOST ? -500.0f : 100.0f;
+            return result == Result.PACMAN_LOST ? REWARD_LOST : REWARD_WON;
         } else {
             if (state.getNumScaredGhosts() < previousState.getNumScaredGhosts()) {
-                return 50.0f;
+                return REWARD_GHOST_EATEN;
             } else if ((state.getNumCapsules() < previousState.getNumCapsules()) || (state.getNumDots() < previousState.getNumDots())) {
-                return 10.0f;
+                return REWARD_DOT_OR_CAPSULE_EATEN;
             } else {
-                return -1.0f;
+                return REWARD_PENALTY;
             }
         }
     }
@@ -87,8 +97,8 @@ public class DQNPacmanAI {
         List<Integer> indexes = IntStream.rangeClosed(0, experiences.size() - 1)
                 .boxed()
                 .collect(Collectors.toList());
-
         Collections.shuffle(indexes);
+
         List<Experience> trainingExperiences = new LinkedList<>();
         for (int i = 0; i < batchSize; i++) {
             trainingExperiences.add(experiences.get(indexes.get(i)));
@@ -98,8 +108,7 @@ public class DQNPacmanAI {
     }
 
     private Direction getMove(DQNGameState state) {
-        lastDirection = Math.random() > eps ? dqn.getMove(state) : Direction.random();
-        return lastDirection;
+        return Math.random() > eps ? dqn.getMove(state) : Direction.random();
     }
 
     public void resetState() {
