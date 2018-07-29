@@ -12,24 +12,19 @@ import java.awt.event.WindowEvent;
 import java.time.Duration;
 import java.util.List;
 
-/**
- * GUI for a pacman game.
- */
 public final class PacmanGui {
 
     private static final int GRID_WIDTH = 40;
     private static final int FRAMES_PER_TICK = 10;
 
     private final Maze maze;
-    private final long msPerTick;
     private final long msPerFrame;
     private GameState state;
     private int renderProgress = 0;
-    private boolean stopped = false;
 
     public PacmanGui(final Maze maze, final Duration step) {
         this.maze = maze;
-        msPerTick = step.getNano() / 1000000;
+        long msPerTick = step.getNano() / 1000000;
         msPerFrame = msPerTick / FRAMES_PER_TICK;
     }
 
@@ -47,6 +42,7 @@ public final class PacmanGui {
         return GRID_WIDTH * piece.getOldPosition().getY() + GRID_WIDTH * renderProgress * piece.getDirection().getDeltaY() / FRAMES_PER_TICK;
     }
 
+    @SuppressWarnings("SpellCheckingInspection")
     public final void initialize() {
         final JFrame frame = new JFrame();
         final JPanel panel = new MyPanel();
@@ -65,7 +61,6 @@ public final class PacmanGui {
 
     public void updateState(GameState state) {
         this.state = state;
-        System.out.println("Received " + state);
         renderProgress = 0;
     }
 
@@ -73,37 +68,33 @@ public final class PacmanGui {
 
         private final JFrame frame;
 
-        public PacmanWindowListener(final JFrame frame) {
+        PacmanWindowListener(final JFrame frame) {
             this.frame = frame;
         }
 
         @Override
         public void windowClosed(final WindowEvent e) {
             frame.dispose();
-            // TODO: Stop game on window close.
         }
     }
 
     private class GuiRunner implements Runnable {
 
-        private JFrame frame;
+        private final JFrame frame;
 
         private GuiRunner(JFrame frame) {
             this.frame = frame;
         }
 
+        @SuppressWarnings("InfiniteLoopStatement")
         @Override
         public void run() {
             while (true) {
                 renderProgress++;
-                if (stopped && renderProgress >= msPerFrame) {
-                    break;
-                }
                 frame.repaint();
                 try {
                     Thread.sleep(msPerFrame);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
+                } catch (Exception ignored) {
                 }
             }
         }
@@ -114,6 +105,7 @@ public final class PacmanGui {
         @Override
         protected void paintComponent(final Graphics g) {
             renderMaze(g);
+            //noinspection Duplicates
             if (state != null) {
                 renderPacman(g);
                 renderDots(g, state.getRemainingDots(), 8);
@@ -125,15 +117,20 @@ public final class PacmanGui {
             }
         }
 
-        private void renderDots(final Graphics g, final List<Position> dots, final int size) { // size = 1/X of square
-            g.setColor(Color.yellow);
-            for (final Position dot : dots) {
-                g.fillOval(GRID_WIDTH * dot.getX() + GRID_WIDTH / 2 - GRID_WIDTH / size / 2,
-                        GRID_WIDTH * dot.getY() + GRID_WIDTH / 2 - GRID_WIDTH / size / 2,
-                        GRID_WIDTH / size, GRID_WIDTH / size);
+        private void renderDots(final Graphics g, final List<Position> dots, final int size) {
+            try {
+                g.setColor(Color.yellow);
+                for (final Position dot : dots) {
+                    g.fillOval(GRID_WIDTH * dot.getX() + GRID_WIDTH / 2 - GRID_WIDTH / size / 2,
+                            GRID_WIDTH * dot.getY() + GRID_WIDTH / 2 - GRID_WIDTH / size / 2,
+                            GRID_WIDTH / size, GRID_WIDTH / size);
+                }
+            } catch (Exception ignored) {
+
             }
         }
 
+        @SuppressWarnings("Duplicates")
         private void renderPacman(final Graphics g) {
             final MovingPiece pacman = state.getPacman();
             int animProgress = (renderProgress + 5) % FRAMES_PER_TICK;
@@ -146,11 +143,9 @@ public final class PacmanGui {
                     calcDrawX(pacman, renderProgress),
                     calcDrawY(pacman, renderProgress),
                     GRID_WIDTH - 1, GRID_WIDTH - 1, startAngle + 45 - animProgress * 9, 270 + animProgress * 18);
-
-//            g.setColor(Color.black);
-//            g.drawString(String.format("X = %d; Y = %d; direction = %s; renderProgress = %d", pacman.getPosition().getX(), pacman.getPosition().getY(), pacman.getDirection().name(), renderProgress), 50, 250);
         }
 
+        @SuppressWarnings("Duplicates")
         private void renderGhost(final Graphics g, final MovingPiece ghost, final Color color) {
             g.setColor(ghost.isVulnerable() ? Color.BLUE : color);
             final int drawX = calcDrawX(ghost, renderProgress);
@@ -176,6 +171,7 @@ public final class PacmanGui {
         private void renderMaze(final Graphics g) {
             final int width = maze.getWidth();
             final int height = maze.getHeight();
+            //noinspection Duplicates
             for (int x = 0; x < width; x++) {
                 for (int y = 0; y < height; y++) {
                     if (maze.isWall(x, y)) {
