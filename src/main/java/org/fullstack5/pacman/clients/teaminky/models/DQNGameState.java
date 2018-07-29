@@ -12,19 +12,26 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+@SuppressWarnings("SpellCheckingInspection")
 @AllArgsConstructor
 @Getter
 public final class DQNGameState {
+    public static final int N_STATE_MATRICES = 6;
+    int cols;
+    int rows;
     float[][] walls;
     float[][] pacman;
     float[][] dot;
     float[][] capsules;
     float[][] ghosts;
     float[][] scaredGhosts;
+    @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
     Optional<Result> result;
 
     public static DQNGameState createState(Maze maze, GameState gameState) {
         return new DQNGameState(
+                maze.getWidth(),
+                maze.getHeight(),
                 DQNGameState.createWalls(maze),
                 DQNGameState.createPacman(maze, gameState),
                 DQNGameState.createDot(maze, gameState),
@@ -123,37 +130,36 @@ public final class DQNGameState {
 
     private int countMatrix(float[][] matrix) {
         int count = 0;
-        for (int i = 0; i < matrix.length; i++) {
-            for (int j = 0; j < matrix[i].length; j++) {
-                if (matrix[i][j] > 0.0f) {
+
+        for (float[] cols : matrix) {
+            for (float cell : cols) {
+                if (cell > 0.0f) {
                     count++;
                 }
             }
         }
+
         return count;
     }
 
     public float[][][][] getX() {
-        int cols = 19;
-        int rows = 21;
+        float[][][][] x = new float[1][cols][rows][N_STATE_MATRICES];
+        float[][] submatrix;
 
-        float[][][][] matrix_x = new float[1][cols][rows][6];
-        float[][] subMatrix;
-
-        for (int k = 0; k < 6; k++) {
-            subMatrix = getSubMatrix(k);
+        for (int k = 0; k < N_STATE_MATRICES; k++) {
+            submatrix = getSubmatrix(k);
 
             for (int i = 0; i < cols; i++) {
                 for (int j = 0; j < rows; j++) {
-                    matrix_x[0][i][j][k] = subMatrix[i][j];
+                    x[0][i][j][k] = submatrix[i][j];
                 }
             }
         }
 
-        return matrix_x;
+        return x;
     }
 
-    private float[][] getSubMatrix(int index) {
+    private float[][] getSubmatrix(int index) {
         switch (index) {
             case 0:
                 return walls;

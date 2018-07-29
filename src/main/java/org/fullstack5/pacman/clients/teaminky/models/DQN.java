@@ -28,7 +28,6 @@ public class DQN {
     private static final String SAVE_CONTROL_DEPENDENCY = "save/control_dependency";
     private static final int N_ACTIONS = 4;
     private static final int N_OUTPUTS = 4;
-    private static final int N_STATE_MATRICES = 6;
     private static final String checkpointPath = "/Users/rodrigogarcialeon/Repositories/ing/PacmanAPI/src/main/java/org/fullstack5/pacman/clients/teaminky/models/checkpoint";
     private static final String modelPath = "/Users/rodrigogarcialeon/Repositories/ing/PacmanAPI/src/main/java/org/fullstack5/pacman/clients/teaminky/models/graph.pb";
     private final int cols;
@@ -102,8 +101,8 @@ public class DQN {
     }
 
     public void train(List<Experience> experiences) {
-        final float[][][][] currentStates = new float[experiences.size()][cols][rows][N_STATE_MATRICES];
-        final float[][][][] previousStates = new float[experiences.size()][cols][rows][N_STATE_MATRICES];
+        final float[][][][] currentStates = new float[experiences.size()][cols][rows][DQNGameState.N_STATE_MATRICES];
+        final float[][][][] previousStates = new float[experiences.size()][cols][rows][DQNGameState.N_STATE_MATRICES];
         final float[] q = new float[experiences.size()];
         final float[] rewards = new float[experiences.size()];
         final float[] terminals = new float[experiences.size()];
