@@ -18,8 +18,7 @@ public class DQNPacmanAI {
     private static final float epsFinal = 0.1f;
     private static final float epsStep = 100000.0f;
     private static final int replayMemorySize = 10000;
-    private static final int trainingStart = 50;
-    //    private static final int trainingStart = 10000;
+    private static final int trainingStart = 10000;
     private static final int batchSize = 32;
     private static final float REWARD_WON = 100.0f;
     private static final float REWARD_LOST = -100.0f;
@@ -45,7 +44,7 @@ public class DQNPacmanAI {
     }
 
     public Direction runAI(GameState gameState) {
-        DQNGameState currentState = DQNGameState.createState(maze, gameState);
+        final DQNGameState currentState = DQNGameState.createState(maze, gameState);
 
         if (previousState != null) {
             observationStep(currentState);
@@ -71,8 +70,8 @@ public class DQNPacmanAI {
     }
 
     private void observationStep(DQNGameState state) {
-        float reward = calculateReward(state);
-        Experience experience = new Experience(previousState, reward, lastDirection, state);
+        final float reward = calculateReward(state);
+        final Experience experience = new Experience(previousState, reward, lastDirection, state);
 
         experiences.addFirst(experience);
         if (experiences.size() > replayMemorySize) {
@@ -82,7 +81,7 @@ public class DQNPacmanAI {
 
     private float calculateReward(DQNGameState state) {
         if (state.getResult().isPresent()) {
-            Result result = state.getResult().get();
+            final Result result = state.getResult().get();
             return result == Result.PACMAN_LOST ? REWARD_LOST : REWARD_WON;
         } else {
             if (state.getNumScaredGhosts() < previousState.getNumScaredGhosts()) {
@@ -96,12 +95,12 @@ public class DQNPacmanAI {
     }
 
     private void train() {
-        List<Integer> indexes = IntStream.rangeClosed(0, experiences.size() - 1)
+        final List<Integer> indexes = IntStream.rangeClosed(0, experiences.size() - 1)
                 .boxed()
                 .collect(Collectors.toList());
         Collections.shuffle(indexes);
 
-        List<Experience> trainingExperiences = new LinkedList<>();
+        final List<Experience> trainingExperiences = new LinkedList<>();
         for (int i = 0; i < batchSize; i++) {
             trainingExperiences.add(experiences.get(indexes.get(i)));
         }
