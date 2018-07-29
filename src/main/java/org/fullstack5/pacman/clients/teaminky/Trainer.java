@@ -29,7 +29,7 @@ public class Trainer implements Runnable {
 
     private Trainer(long gameDelay) {
         try {
-            maze = MazeLoader.loadMaze(Trainer.MAZE_ID);
+            maze = MazeLoader.loadMaze(MAZE_ID);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
