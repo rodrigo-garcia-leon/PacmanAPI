@@ -24,26 +24,23 @@ public final class AStarGhostAI {
     }
 
     public final List<Direction> runAI(final GameState state) {
-//        System.out.println("\nTurn " + state.getTime());
+
         List<Direction> directions = new ArrayList<>();
         for (int i = 0; i < GHOST_COUNT; i++) {
             final MovingPiece ghost = ClientUtils.getGhost(state, i);
             final MovingPiece pacman = state.getPacman();
             final List<WeightedPosition> path = calculateAStarPath(maze, ghost, pacman);
-//            System.out.println("Found path for " + ClientUtils.getGhostType(i) + ":\n" + path);
-//            System.out.println("Giving order " + path.get(0).getDirectionToPosition());
             directions.add(path.get(0).getDirectionToPosition());
         }
         return directions;
     }
 
+    @SuppressWarnings("Duplicates")
     private List<WeightedPosition> calculateAStarPath(final Maze maze, final MovingPiece origin, final MovingPiece target) {
-        final TreeSet<WeightedPosition> options = new TreeSet<>();
-        final Collection<WeightedPosition> neighbouring = findNeighbouring(maze, origin.getCurrentPosition(), target.getCurrentPosition(), null);
-        options.addAll(neighbouring);
-//        System.out.println("Position: " + origin.getCurrentPosition() + " (was " + origin.getOldPosition() + ")");
-//        System.out.println("Neighbouring: " + neighbouring);
-//        System.out.println("Option set: " + options);
+        final Collection<WeightedPosition> neighbouring = findNeighbouring(maze, origin.getCurrentPosition(), target.getCurrentPosition());
+        final TreeSet<WeightedPosition> options = new TreeSet<>(neighbouring);
+
+
         final List<WeightedPosition> doneList = new ArrayList<>();
         while (!options.isEmpty()) {
             final WeightedPosition next = options.first();
@@ -55,7 +52,7 @@ public final class AStarGhostAI {
             addAllNonPresent(options, doneList, findNeighbouring(maze, next, target.getCurrentPosition(), next));
         }
         final List<WeightedPosition> result = new ArrayList<>();
-        // TODO: if empty, then what?
+
         WeightedPosition foundSolution = options.first();
         while (foundSolution != null) {
             result.add(0, foundSolution);
@@ -64,7 +61,8 @@ public final class AStarGhostAI {
         return result;
     }
 
-    // TODO: this can be more efficient.
+
+    @SuppressWarnings("Duplicates")
     private void addAllNonPresent(final Collection<WeightedPosition> target, final Collection<WeightedPosition> doneList, final Collection<WeightedPosition> newPoss) {
         for (final WeightedPosition newPos : newPoss) {
             boolean found = false;
@@ -90,14 +88,14 @@ public final class AStarGhostAI {
         }
     }
 
-    private Collection<WeightedPosition> findNeighbouring(final Maze maze, final Position current, final Position target, final WeightedPosition parent) {
+    private Collection<WeightedPosition> findNeighbouring(final Maze maze, final Position current, final Position target) {
         final List<WeightedPosition> result = new ArrayList<>(4);
         for (final Direction direction : ClientUtils.randomize(Direction.values())) {
             final Position newPos = ClientUtils.getPosition(maze, current, direction);
             if (maze.isWall(newPos)) {
                 continue;
             }
-            result.add(new WeightedPosition(newPos, parent, direction, 0, estimateDistance(newPos, target)));
+            result.add(new WeightedPosition(newPos, null, direction, 0, estimateDistance(newPos, target)));
         }
         return result;
     }
