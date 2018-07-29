@@ -10,59 +10,80 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.List;
 
+@SuppressWarnings("SpellCheckingInspection")
 public class DQN {
-    Graph graph;
-    Session sess;
-    String modelPath = "/Users/rodrigogarcialeon/Repositories/ing/PacmanAPI/src/main/java/org/fullstack5/pacman/clients/teaminky/models/graph.pb";
-    String checkpointPath = "/Users/rodrigogarcialeon/Repositories/ing/PacmanAPI/src/main/java/org/fullstack5/pacman/clients/teaminky/models/checkpoint";
-    Tensor<String> checkpointPrefix;
-    long checkpointCount = 0;
+    private static final String GLOBAL_STEP = "global_step";
+    private static final int CHECKPOINT_SAVE_COUNT = 1000;
+    private static final String X = "x";
+    private static final String Q_T = "q_t";
+    private static final String ACTIONS = "actions";
+    private static final String REWARDS = "rewards";
+    private static final String TERMINALS = "terminals";
+    private static final String FC_4_OUTPUTS = "fc4_outputs";
+    private static final String TRAIN = "train";
+    private static final String SAVE_CONST = "save/Const";
+    private static final String SAVE_RESTORE_ALL = "save/restore_all";
+    private static final String INIT = "init";
+    private static final String CKPT = "ckpt";
+    private static final String SAVE_CONTROL_DEPENDENCY = "save/control_dependency";
+    private static final int N_ACTIONS = 4;
+    private static final int N_OUTPUTS = 4;
+    private static final int N_STATE_MATRICES = 6;
+    private static final String checkpointPath = "/Users/rodrigogarcialeon/Repositories/ing/PacmanAPI/src/main/java/org/fullstack5/pacman/clients/teaminky/models/checkpoint";
+    private static final String modelPath = "/Users/rodrigogarcialeon/Repositories/ing/PacmanAPI/src/main/java/org/fullstack5/pacman/clients/teaminky/models/graph.pb";
+    private final int cols;
+    private final int rows;
+    private Session sess;
+    private Tensor<String> checkpointPrefix;
+    private long checkpointCount = 0;
 
-    public DQN() {
+    public DQN(int cols, int rows) {
+        this.cols = cols;
+        this.rows = rows;
         init();
     }
 
-    public void init() {
+    private void init() {
         try {
             final byte[] graphDef = Files.readAllBytes(Paths.get(modelPath));
-            graph = new Graph();
+            final Graph graph = new Graph();
             sess = new Session(graph);
             graph.importGraphDef(graphDef);
-            checkpointPrefix = Tensors.create(Paths.get(checkpointPath, "ckpt").toString());
+            checkpointPrefix = Tensors.create(Paths.get(checkpointPath, CKPT).toString());
 
             if (Files.exists(Paths.get(checkpointPath))) {
-                sess.runner().feed("save/Const", checkpointPrefix).addTarget("save/restore_all").run();
+                sess.runner().feed(SAVE_CONST, checkpointPrefix).addTarget(SAVE_RESTORE_ALL).run();
             } else {
-                sess.runner().addTarget("init").run();
+                sess.runner().addTarget(INIT).run();
             }
-
         } catch (Exception e) {
+            throw new RuntimeException(e);
         }
     }
 
     public int getGlobalStep() {
         return sess.runner()
-                .fetch("global_step")
+                .fetch(GLOBAL_STEP)
                 .run()
                 .get(0)
                 .intValue();
     }
 
     public Direction getMove(DQNGameState state) {
-        Tensor<Float> x = Tensor.create(state.getX(), Float.class);
-        Tensor<Float> q_t = Tensor.create(0.0f, Float.class);
-        Tensor<Float> actions = Tensor.create(new float[1][4], Float.class);
-        Tensor<Float> rewards = Tensor.create(0.0f, Float.class);
-        Tensor<Float> terminals = Tensor.create(0.0f, Float.class);
-        float[][] y = new float[1][4];
+        final Tensor<Float> x = Tensor.create(state.getX(), Float.class);
+        final Tensor<Float> q_t = Tensor.create(0.0f, Float.class);
+        final Tensor<Float> actions = Tensor.create(new float[1][N_ACTIONS], Float.class);
+        final Tensor<Float> rewards = Tensor.create(0.0f, Float.class);
+        final Tensor<Float> terminals = Tensor.create(0.0f, Float.class);
+        final float[][] y = new float[1][N_OUTPUTS];
 
         sess.runner()
-                .feed("x", x)
-                .feed("q_t", q_t)
-                .feed("actions", actions)
-                .feed("rewards", rewards)
-                .feed("terminals", terminals)
-                .fetch("fc4_outputs")
+                .feed(X, x)
+                .feed(Q_T, q_t)
+                .feed(ACTIONS, actions)
+                .feed(REWARDS, rewards)
+                .feed(TERMINALS, terminals)
+                .fetch(FC_4_OUTPUTS)
                 .run()
                 .get(0)
                 .copyTo(y);
@@ -70,7 +91,7 @@ public class DQN {
         float maxValue = 0.0f;
         int maxIndex = 0;
 
-        for (int i = 0; i < 4; i++) {
+        for (int i = 0; i < N_OUTPUTS; i++) {
             if (y[0][i] > maxValue) {
                 maxValue = y[0][i];
                 maxIndex = i;
@@ -81,15 +102,12 @@ public class DQN {
     }
 
     public void train(List<Experience> experiences) {
-        int cols = 19;
-        int rows = 21;
-
-        float[][][][] currentStates = new float[experiences.size()][cols][rows][6];
-        float[][][][] previousStates = new float[experiences.size()][cols][rows][6];
-        float[] q = new float[experiences.size()];
-        float[] rewards = new float[experiences.size()];
-        float[] terminals = new float[experiences.size()];
-        float[][] actions = new float[experiences.size()][4];
+        final float[][][][] currentStates = new float[experiences.size()][cols][rows][N_STATE_MATRICES];
+        final float[][][][] previousStates = new float[experiences.size()][cols][rows][N_STATE_MATRICES];
+        final float[] q = new float[experiences.size()];
+        final float[] rewards = new float[experiences.size()];
+        final float[] terminals = new float[experiences.size()];
+        final float[][] actions = new float[experiences.size()][N_ACTIONS];
 
         for (int i = 0; i < experiences.size(); i++) {
             currentStates[i] = experiences.get(i).getCurrentState().getX()[0];
@@ -101,19 +119,19 @@ public class DQN {
 
         Tensor<Float> t_x = Tensor.create(currentStates, Float.class);
         Tensor<Float> t_q = Tensor.create(q, Float.class);
-        Tensor<Float> t_actions = Tensor.create(actions, Float.class);
-        Tensor<Float> t_rewards = Tensor.create(rewards, Float.class);
-        Tensor<Float> t_terminals = Tensor.create(terminals, Float.class);
+        final Tensor<Float> t_actions = Tensor.create(actions, Float.class);
+        final Tensor<Float> t_rewards = Tensor.create(rewards, Float.class);
+        final Tensor<Float> t_terminals = Tensor.create(terminals, Float.class);
 
-        float[][] y = new float[experiences.size()][4];
+        final float[][] y = new float[experiences.size()][N_OUTPUTS];
 
         sess.runner()
-                .feed("x", t_x)
-                .feed("q_t", t_q)
-                .feed("actions", t_actions)
-                .feed("rewards", t_rewards)
-                .feed("terminals", t_terminals)
-                .fetch("fc4_outputs")
+                .feed(X, t_x)
+                .feed(Q_T, t_q)
+                .feed(ACTIONS, t_actions)
+                .feed(REWARDS, t_rewards)
+                .feed(TERMINALS, t_terminals)
+                .fetch(FC_4_OUTPUTS)
                 .run()
                 .get(0)
                 .copyTo(y);
@@ -133,26 +151,26 @@ public class DQN {
         t_q = Tensor.create(q, Float.class);
 
         sess.runner()
-                .feed("x", t_x)
-                .feed("q_t", t_q)
-                .feed("actions", t_actions)
-                .feed("rewards", t_rewards)
-                .feed("terminals", t_terminals)
-                .addTarget("train")
+                .feed(X, t_x)
+                .feed(Q_T, t_q)
+                .feed(ACTIONS, t_actions)
+                .feed(REWARDS, t_rewards)
+                .feed(TERMINALS, t_terminals)
+                .addTarget(TRAIN)
                 .run();
 
         checkpointCount++;
-        if (checkpointCount % 1000 == 0) {
+        if (checkpointCount % CHECKPOINT_SAVE_COUNT == 0) {
             saveCheckpoint();
         }
     }
 
     private void saveCheckpoint() {
-        sess.runner().feed("save/Const", checkpointPrefix).addTarget("save/control_dependency").run();
+        sess.runner().feed(SAVE_CONST, checkpointPrefix).addTarget(SAVE_CONTROL_DEPENDENCY).run();
     }
 
     private float[] getActionFromDirection(Direction direction) {
-        float[] action = new float[4];
+        final float[] action = new float[N_ACTIONS];
 
         switch (direction) {
             case NORTH:

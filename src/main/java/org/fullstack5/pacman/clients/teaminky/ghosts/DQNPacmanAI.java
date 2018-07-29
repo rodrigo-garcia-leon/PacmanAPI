@@ -18,7 +18,8 @@ public class DQNPacmanAI {
     private static final float epsFinal = 0.1f;
     private static final float epsStep = 100000.0f;
     private static final int replayMemorySize = 10000;
-    private static final int trainingStart = 10000;
+    private static final int trainingStart = 50;
+    //    private static final int trainingStart = 10000;
     private static final int batchSize = 32;
     private static final float REWARD_WON = 100.0f;
     private static final float REWARD_LOST = -100.0f;
@@ -26,7 +27,7 @@ public class DQNPacmanAI {
     private static final float REWARD_DOT_OR_CAPSULE_EATEN = 10.0f;
     private static final float REWARD_PENALTY = -1.0f;
     private final Maze maze;
-    private final DQN dqn = new DQN();
+    private final DQN dqn;
     private final LinkedList<Experience> experiences = new LinkedList<>();
     private DQNGameState previousState;
     private int globalStep;
@@ -36,6 +37,7 @@ public class DQNPacmanAI {
 
     public DQNPacmanAI(Maze maze) {
         this.maze = maze;
+        dqn = new DQN(maze.getWidth(), maze.getHeight());
     }
 
     private void updateGlobalStep() {
