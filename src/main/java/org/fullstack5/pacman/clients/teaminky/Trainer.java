@@ -18,81 +18,75 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 public class Trainer implements Runnable {
-    private final long gameDelay = 0;
+    private static final int MAZE_ID = 1;
+    private long gameDelay;
+    private long paintDelay;
     private Maze maze;
     private GameRunner gameRunner;
     private PacmanGui gui;
     private AStarGhostAI ghostAI;
     private DQNPacmanAI pacmanAI;
 
-    private Trainer() {
+    private Trainer(long gameDelay) {
         try {
-            maze = MazeLoader.loadMaze(1);
+            maze = MazeLoader.loadMaze(Trainer.MAZE_ID);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
 
+        this.gameDelay = gameDelay;
+        paintDelay = (long) (((float) gameDelay) * 0.9f);
         ghostAI = new AStarGhostAI(maze);
         pacmanAI = new DQNPacmanAI(maze);
     }
 
     public static void main(final String... args) {
-        new Thread(new Trainer()).start();
+        long gameDelay = Integer.parseInt(args[0]);
+        new Thread(new Trainer(gameDelay)).start();
     }
 
     @Override
     public final void run() {
+        initGameRunner();
         GameState gameState;
 
+        //noinspection InfiniteLoopStatement
         while (true) {
-            checkGameRunner();
             gameState = gameRunner.createState();
-            updateGui(gameState);
+            if (gui != null) {
+                gui.updateState(gameState);
+            }
+
             updatePacman(gameState);
             updateGhosts(gameState);
             gameRunner.performStep();
+
             if (gameRunner.isFinished()) {
-                gameState = gameRunner.createState();
-                updatePacman(gameState);
-                pacmanAI.resetState();
+                finishPacman(gameRunner.createState());
+                resetGameRunner();
             }
-            waitGameDelay();
+
+            if (gameDelay > 0) {
+                waitGameDelay();
+            }
         }
     }
 
-
-    private void checkGameRunner() {
-        if (shouldResetGameRunner()) {
-            resetGameRunner();
+    private void initGameRunner() {
+        resetGameRunner();
+        if (gameDelay > 0) {
+            initGui();
         }
-    }
-
-    private Boolean shouldResetGameRunner() {
-        return gameRunner == null || gameRunner.isFinished();
     }
 
     private void resetGameRunner() {
         Game game = new Game(maze);
         gameRunner = new GameRunner(game);
-
-        if (gameDelay == 0 || gui != null) {
-            return;
-        }
-
-        initGui();
     }
 
     private void initGui() {
-        gui = new PacmanGui(maze, Duration.ofMillis((long) (((float) gameDelay) * 0.9f)));
+        gui = new PacmanGui(maze, Duration.ofMillis(paintDelay));
         gui.initialize();
-    }
-
-    private void updateGui(GameState gameState) {
-        if (gui == null) {
-            return;
-        }
-
-        gui.updateState(gameState);
     }
 
     private void updatePacman(GameState gameState) {
@@ -107,11 +101,12 @@ public class Trainer implements Runnable {
         }
     }
 
-    private void waitGameDelay() {
-        if (gameDelay == 0) {
-            return;
-        }
+    private void finishPacman(GameState state) {
+        pacmanAI.runAI(state);
+        pacmanAI.resetState();
+    }
 
+    private void waitGameDelay() {
         try {
             TimeUnit.MILLISECONDS.sleep(gameDelay);
         } catch (Exception ignored) {
