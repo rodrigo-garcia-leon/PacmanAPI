@@ -28,8 +28,8 @@ public class DQN {
     private static final String SAVE_CONTROL_DEPENDENCY = "save/control_dependency";
     private static final int N_ACTIONS = 4;
     private static final int N_OUTPUTS = 4;
-    private static final String checkpointPath = "/Users/rodrigogarcialeon/Repositories/ing/PacmanAPI/src/main/java/org/fullstack5/pacman/clients/teaminky/models/checkpoint";
-    private static final String modelPath = "/Users/rodrigogarcialeon/Repositories/ing/PacmanAPI/src/main/java/org/fullstack5/pacman/clients/teaminky/models/graph.pb";
+    private static final String checkpointPath = "src/main/java/org/fullstack5/pacman/clients/teaminky/models/checkpoint";
+    private static final String modelPath = "src/main/java/org/fullstack5/pacman/clients/teaminky/models/graph.pb";
     private final int cols;
     private final int rows;
     private Session sess;
