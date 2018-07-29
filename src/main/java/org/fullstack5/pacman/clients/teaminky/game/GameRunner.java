@@ -22,35 +22,24 @@ public final class GameRunner {
         return this.game.getResult().isPresent();
     }
 
-//    final void start(final String gameId, final Duration step) {
-//        new PacmanGui(gameId, game.getMaze(), step).initialize(flux);
-//    }
-
-    public Maze getMaze() {
-        return game.getMaze();
-    }
-
+    @SuppressWarnings("SpellCheckingInspection")
     public void performStep() {
-        // update all pieces
         game.getPieces().stream()
-                .filter(piece -> piece.isActive())
+                .filter(Piece::isActive)
                 .forEach(piece ->
                         piece.setPosition(
                                 determineNewPosition(piece.getPosition(), piece.getDirection())
                         )
                 );
 
-        // update timers
         updateTimers();
 
-        // if vulnerability ended make all ghosts deadly again
         if (game.getTicksVulnerable() <= 0) {
             game.getGhosts().forEach(ghost -> ghost.setVulnerable(false));
         }
 
         Piece pacman = game.getPacman();
 
-        // detect ghost collisions
         for (Piece ghost : game.getGhosts()) {
             if (collided(pacman, ghost)) {
                 if (ghost.isVulnerable()) {
@@ -65,16 +54,13 @@ public final class GameRunner {
             }
         }
 
-        // eat pacdots
         game.getRemainingPacdots().remove(pacman.getPosition());
 
-        // eat power pellets
         if (game.getRemainingPellets().remove(pacman.getPosition())) {
             game.setTicksVulnerable(20);
             game.getGhosts().forEach(ghost -> ghost.setVulnerable(true));
         }
 
-        // check if all dots & pellets are eaten
         boolean allDotsEaten = game.getRemainingPacdots().isEmpty();
         boolean allPelletsEaten = game.getRemainingPellets().isEmpty();
         if (allDotsEaten && allPelletsEaten) {
@@ -82,20 +68,13 @@ public final class GameRunner {
         }
     }
 
-    public final boolean collided(Piece pacman, Piece ghost) {
-        // ended up on the same position
+    private boolean collided(Piece pacman, Piece ghost) {
         if (pacman.getPosition().equals(ghost.getPosition())) {
             return true;
         }
 
-        // crossed position
-        if (pacman.getPosition().equals(ghost.getPreviousPosition()) &&
-                pacman.getPreviousPosition().equals(ghost.getPosition())) {
-            return true;
-        }
-
-        // no collision
-        return false;
+        return pacman.getPosition().equals(ghost.getPreviousPosition()) &&
+                pacman.getPreviousPosition().equals(ghost.getPosition());
     }
 
     public final GameState createState() {
@@ -114,7 +93,7 @@ public final class GameRunner {
         );
     }
 
-    public MovingPiece createMovingPiece(Piece piece) {
+    private MovingPiece createMovingPiece(Piece piece) {
         return new MovingPiece(
                 piece.getPreviousPosition(),
                 piece.getPosition(),
@@ -130,10 +109,11 @@ public final class GameRunner {
 
     private void updateTimers() {
         game.setTime(game.getTime() + 1);
-        game.getPieces().forEach(piece -> piece.reduceTicksDisabled());
+        game.getPieces().forEach(Piece::reduceTicksDisabled);
         game.reduceTicksVulnerable();
     }
 
+    @SuppressWarnings("Duplicates")
     private Piece getPiece(final Piece.Type type) {
         switch (type) {
             case PACMAN:
@@ -151,6 +131,7 @@ public final class GameRunner {
         }
     }
 
+    @SuppressWarnings("Duplicates")
     private Position getSpawnPosition(Piece piece) {
         switch (piece.getType()) {
             case PACMAN:
@@ -168,7 +149,8 @@ public final class GameRunner {
         }
     }
 
-    public final Position determineNewPosition(final Position position, final Direction direction) {
+    @SuppressWarnings("Duplicates")
+    private Position determineNewPosition(final Position position, final Direction direction) {
         if (position == null || direction == null) {
             return position;
         }
@@ -182,7 +164,7 @@ public final class GameRunner {
         return new Position(x, y);
     }
 
-    public int boundedMove(int position, int delta, int upperBound) {
+    private int boundedMove(int position, int delta, int upperBound) {
         int result = (position + delta) % upperBound;
         if (result < 0) {
             result += upperBound;
