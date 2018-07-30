@@ -1,11 +1,13 @@
 package org.fullstack5.pacman.clients.teaminky.models;
 
+import org.apache.commons.io.IOUtils;
 import org.fullstack5.pacman.api.models.Direction;
 import org.tensorflow.Graph;
 import org.tensorflow.Session;
 import org.tensorflow.Tensor;
 import org.tensorflow.Tensors;
 
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.List;
@@ -28,8 +30,13 @@ public class DQN {
     private static final String SAVE_CONTROL_DEPENDENCY = "save/control_dependency";
     private static final int N_ACTIONS = 4;
     private static final int N_OUTPUTS = 4;
-    private static final String checkpointPath = "src/main/java/org/fullstack5/pacman/clients/teaminky/models/checkpoint";
-    private static final String modelPath = "src/main/java/org/fullstack5/pacman/clients/teaminky/models/graph.pb";
+    private static final String checkpointPath = "checkpoint";
+    private static final InputStream modelInputStream;
+
+    static {
+        modelInputStream = DQN.class.getClassLoader().getResourceAsStream("models/graph.pb");
+    }
+
     private final int cols;
     private final int rows;
     private Session sess;
@@ -44,12 +51,11 @@ public class DQN {
 
     private void init() {
         try {
-            final byte[] graphDef = Files.readAllBytes(Paths.get(modelPath));
+            final byte[] graphDef = IOUtils.toByteArray(modelInputStream);
             final Graph graph = new Graph();
             sess = new Session(graph);
             graph.importGraphDef(graphDef);
             checkpointPrefix = Tensors.create(Paths.get(checkpointPath, CKPT).toString());
-
             if (Files.exists(Paths.get(checkpointPath))) {
                 sess.runner().feed(SAVE_CONST, checkpointPrefix).addTarget(SAVE_RESTORE_ALL).run();
             } else {

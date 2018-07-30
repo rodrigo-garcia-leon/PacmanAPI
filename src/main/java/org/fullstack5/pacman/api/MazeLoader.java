@@ -7,9 +7,6 @@ import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,10 +26,8 @@ public final class MazeLoader {
     private static final int COLOR_CLYDE_SPAWN = -14066; // new Color(255, 201, 14).getRGB();
 
     public static Maze loadMaze(final int mazeId) throws IOException {
-        final String filename = String.format("src/main/resources/mazes/maze%s.png", mazeId);
-        final Path path = Paths.get(filename);
-//        System.out.println(path.toAbsolutePath().toString());
-        final BufferedImage image = ImageIO.read(Files.newInputStream(path));
+        final String filename = String.format("mazes/maze%s.png", mazeId);
+        final BufferedImage image = ImageIO.read(MazeLoader.class.getClassLoader().getResourceAsStream(filename));
         return loadMaze(image);
     }
 
