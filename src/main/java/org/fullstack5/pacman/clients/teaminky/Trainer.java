@@ -130,7 +130,7 @@ public class Trainer implements Runnable {
 
     private void printStats() {
         double avgScore = scores.stream().mapToDouble(x -> x).average().orElse(0.0);
-        System.out.println(String.format("won: %d; lost: %d; avg_score: %f", wonCounter, lostCounter, avgScore));
+        System.out.println(String.format("won: %d; lost: %d; score: %d, average: %f", wonCounter, lostCounter, scores.get(scores.size() - 1), avgScore));
     }
 
     private void waitGameDelay() {
