@@ -25,6 +25,7 @@ public class DQNPacmanAI {
     private static final float REWARD_GHOST_EATEN = 50.0f;
     private static final float REWARD_DOT_OR_CAPSULE_EATEN = 10.0f;
     private static final float REWARD_PENALTY = -1.0f;
+    private static int SAVE_COUNT = 100;
     private final Maze maze;
     private final DQN dqn;
     private final LinkedList<Experience> experiences = new LinkedList<>();
@@ -33,6 +34,7 @@ public class DQNPacmanAI {
     private float eps = 1.0f;
     private Direction lastDirection;
     private int localCount;
+    private float cost;
 
     public DQNPacmanAI(Maze maze) {
         this.maze = maze;
@@ -47,16 +49,16 @@ public class DQNPacmanAI {
         final DQNGameState currentState = DQNGameState.createState(maze, gameState);
 
         if (previousState != null) {
+            localCount++;
+
             observationStep(currentState);
-
             if (localCount > trainingStart) {
-                train();
-            } else {
-                localCount++;
-            }
+                cost = train();
+                updateGlobalStep();
+                updateEps();
 
-            updateGlobalStep();
-            updateEps();
+                System.out.println(String.format("global step: %d; cost: %f", globalStep, cost));
+            }
         }
 
         previousState = currentState;
@@ -94,7 +96,7 @@ public class DQNPacmanAI {
         }
     }
 
-    private void train() {
+    private float train() {
         final List<Integer> indexes = IntStream.rangeClosed(0, experiences.size() - 1)
                 .boxed()
                 .collect(Collectors.toList());
@@ -105,7 +107,7 @@ public class DQNPacmanAI {
             trainingExperiences.add(experiences.get(indexes.get(i)));
         }
 
-        dqn.train(trainingExperiences);
+        return dqn.train(trainingExperiences);
     }
 
     private Direction getMove(DQNGameState state) {

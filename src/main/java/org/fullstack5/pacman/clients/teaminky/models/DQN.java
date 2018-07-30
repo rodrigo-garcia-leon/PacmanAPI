@@ -14,6 +14,7 @@ import java.util.List;
 
 @SuppressWarnings("SpellCheckingInspection")
 public class DQN {
+    public static final String COST = "cost";
     private static final String GLOBAL_STEP = "global_step";
     private static final int CHECKPOINT_SAVE_COUNT = 1000;
     private static final String X = "x";
@@ -106,7 +107,7 @@ public class DQN {
         return getDirectionFromActionIndex(maxIndex);
     }
 
-    public void train(List<Experience> experiences) {
+    public float train(List<Experience> experiences) {
         final float[][][][] currentStates = new float[experiences.size()][cols][rows][DQNGameState.N_STATE_MATRICES];
         final float[][][][] previousStates = new float[experiences.size()][cols][rows][DQNGameState.N_STATE_MATRICES];
         final float[] q = new float[experiences.size()];
@@ -155,22 +156,28 @@ public class DQN {
         t_x = Tensor.create(previousStates, Float.class);
         t_q = Tensor.create(q, Float.class);
 
-        sess.runner()
+        float cost = sess.runner()
                 .feed(X, t_x)
                 .feed(Q_T, t_q)
                 .feed(ACTIONS, t_actions)
                 .feed(REWARDS, t_rewards)
                 .feed(TERMINALS, t_terminals)
                 .addTarget(TRAIN)
-                .run();
+                .fetch(COST)
+                .run()
+                .get(0)
+                .floatValue();
 
         checkpointCount++;
         if (checkpointCount % CHECKPOINT_SAVE_COUNT == 0) {
             saveCheckpoint();
         }
+
+        return cost;
     }
 
     private void saveCheckpoint() {
+        System.out.println("saving checkpoint...");
         sess.runner().feed(SAVE_CONST, checkpointPrefix).addTarget(SAVE_CONTROL_DEPENDENCY).run();
     }
 

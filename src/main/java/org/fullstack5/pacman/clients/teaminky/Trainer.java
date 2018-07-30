@@ -5,6 +5,7 @@ import org.fullstack5.pacman.api.models.Direction;
 import org.fullstack5.pacman.api.models.Game;
 import org.fullstack5.pacman.api.models.Maze;
 import org.fullstack5.pacman.api.models.Piece;
+import org.fullstack5.pacman.api.models.Result;
 import org.fullstack5.pacman.api.models.response.GameState;
 import org.fullstack5.pacman.clients.teaminky.game.GameRunner;
 import org.fullstack5.pacman.clients.teaminky.game.PacmanGui;
@@ -14,6 +15,7 @@ import org.fullstack5.pacman.clients.teampacman.ClientUtils;
 
 import java.io.IOException;
 import java.time.Duration;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -26,6 +28,9 @@ public class Trainer implements Runnable {
     private PacmanGui gui;
     private AStarGhostAI ghostAI;
     private DQNPacmanAI pacmanAI;
+    private int lostCounter;
+    private int wonCounter;
+    private List<Integer> scores = new ArrayList<>();
 
     private Trainer(long gameDelay) {
         try {
@@ -62,7 +67,7 @@ public class Trainer implements Runnable {
             gameRunner.performStep();
 
             if (gameRunner.isFinished()) {
-                finishPacman(gameRunner.createState());
+                finishGame(gameRunner.createState());
                 resetGameRunner();
             }
 
@@ -101,9 +106,31 @@ public class Trainer implements Runnable {
         }
     }
 
+    private void finishGame(GameState state) {
+        finishPacman(state);
+        updateStats(state);
+        printStats();
+    }
+
     private void finishPacman(GameState state) {
         pacmanAI.runAI(state);
         pacmanAI.resetState();
+    }
+
+    private void updateStats(GameState state) {
+        state.getResult().ifPresent(result -> {
+            if (result == Result.PACMAN_WON) {
+                wonCounter++;
+            } else {
+                lostCounter++;
+            }
+        });
+        scores.add(state.getPacmanScore());
+    }
+
+    private void printStats() {
+        double avgScore = scores.stream().mapToDouble(x -> x).average().orElse(0.0);
+        System.out.println(String.format("won: %d; lost: %d; avg_score: %f", wonCounter, lostCounter, avgScore));
     }
 
     private void waitGameDelay() {
