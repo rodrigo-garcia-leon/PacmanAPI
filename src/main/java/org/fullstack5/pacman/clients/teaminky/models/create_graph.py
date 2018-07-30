@@ -64,7 +64,7 @@ y = tf.add(tf.matmul(o3, w4), b4, name=layer_name + '_outputs')
 discount = tf.constant(params['discount'])
 yj = tf.add(rewards, tf.multiply(1.0 - terminals, tf.multiply(discount, q_t)))
 Q_pred = tf.reduce_sum(tf.multiply(y, actions), reduction_indices=1)
-cost = tf.reduce_sum(tf.pow(tf.subtract(yj, Q_pred), 2))
+cost = tf.reduce_sum(tf.pow(tf.subtract(yj, Q_pred), 2), name='cost')
 global_step = tf.Variable(0, name='global_step', trainable=False)
 optim = tf.train.AdamOptimizer(params['lr']).minimize(cost, global_step=global_step, name='train')
 
