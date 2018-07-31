@@ -58,8 +58,10 @@ public class DQN {
             graph.importGraphDef(graphDef);
             checkpointPrefix = Tensors.create(Paths.get(checkpointPath, CKPT).toString());
             if (Files.exists(Paths.get(checkpointPath))) {
+                System.out.println("loading checkpoint...");
                 sess.runner().feed(SAVE_CONST, checkpointPrefix).addTarget(SAVE_RESTORE_ALL).run();
             } else {
+                System.out.println("starting from scratch...");
                 sess.runner().addTarget(INIT).run();
             }
         } catch (Exception e) {
