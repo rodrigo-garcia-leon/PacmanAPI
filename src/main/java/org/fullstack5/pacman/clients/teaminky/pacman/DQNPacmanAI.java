@@ -1,4 +1,4 @@
-package org.fullstack5.pacman.clients.teaminky.ghosts;
+package org.fullstack5.pacman.clients.teaminky.pacman;
 
 import org.fullstack5.pacman.api.models.Direction;
 import org.fullstack5.pacman.api.models.Maze;
@@ -25,7 +25,6 @@ public class DQNPacmanAI {
     private static final float REWARD_GHOST_EATEN = 50.0f;
     private static final float REWARD_DOT_OR_CAPSULE_EATEN = 10.0f;
     private static final float REWARD_PENALTY = -1.0f;
-    private static int SAVE_COUNT = 100;
     private final Maze maze;
     private final DQN dqn;
     private final LinkedList<Experience> experiences = new LinkedList<>();
@@ -34,7 +33,6 @@ public class DQNPacmanAI {
     private float eps = 1.0f;
     private Direction lastDirection;
     private int localCount;
-    private float cost;
 
     public DQNPacmanAI(Maze maze) {
         this.maze = maze;
@@ -53,7 +51,7 @@ public class DQNPacmanAI {
 
             observationStep(currentState);
             if (localCount > trainingStart) {
-                cost = train();
+                float cost = train();
                 updateGlobalStep();
                 updateEps();
 

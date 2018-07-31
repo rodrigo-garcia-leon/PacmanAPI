@@ -14,7 +14,7 @@ import java.util.List;
 
 @SuppressWarnings("SpellCheckingInspection")
 public class DQN {
-    public static final String COST = "cost";
+    private static final String COST = "cost";
     private static final String GLOBAL_STEP = "global_step";
     private static final int CHECKPOINT_SAVE_COUNT = 1000;
     private static final String X = "x";

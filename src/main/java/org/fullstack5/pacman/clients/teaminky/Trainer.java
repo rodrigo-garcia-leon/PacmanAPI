@@ -10,7 +10,7 @@ import org.fullstack5.pacman.api.models.response.GameState;
 import org.fullstack5.pacman.clients.teaminky.game.GameRunner;
 import org.fullstack5.pacman.clients.teaminky.game.PacmanGui;
 import org.fullstack5.pacman.clients.teaminky.ghosts.AStarGhostAI;
-import org.fullstack5.pacman.clients.teaminky.ghosts.DQNPacmanAI;
+import org.fullstack5.pacman.clients.teaminky.pacman.DQNPacmanAI;
 import org.fullstack5.pacman.clients.teampacman.ClientUtils;
 
 import java.io.IOException;
@@ -21,6 +21,7 @@ import java.util.concurrent.TimeUnit;
 
 public class Trainer implements Runnable {
     private static final int MAZE_ID = 1;
+    private final List<Integer> scores = new ArrayList<>();
     private long gameDelay;
     private long paintDelay;
     private Maze maze;
@@ -30,7 +31,6 @@ public class Trainer implements Runnable {
     private DQNPacmanAI pacmanAI;
     private int lostCounter;
     private int wonCounter;
-    private List<Integer> scores = new ArrayList<>();
 
     private Trainer(long gameDelay) {
         try {
