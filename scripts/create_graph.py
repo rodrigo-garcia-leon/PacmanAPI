@@ -1,3 +1,5 @@
+import os.path
+
 import tensorflow as tf
 
 params = {
@@ -72,5 +74,7 @@ init = tf.global_variables_initializer()
 
 saver_def = tf.train.Saver().as_saver_def()
 
-with open('graph.pb', 'wb') as f:
+with open(os.path.join(os.path.abspath(os.path.dirname(__file__)), '../src/main/resources/models/graph.pb'), 'wb') as f:
     f.write(tf.get_default_graph().as_graph_def().SerializeToString())
+
+print('model saved')
