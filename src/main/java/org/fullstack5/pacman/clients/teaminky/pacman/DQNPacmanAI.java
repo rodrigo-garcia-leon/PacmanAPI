@@ -8,11 +8,9 @@ import org.fullstack5.pacman.clients.teaminky.models.DQN;
 import org.fullstack5.pacman.clients.teaminky.models.DQNGameState;
 import org.fullstack5.pacman.clients.teaminky.models.Experience;
 
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 public class DQNPacmanAI {
     private static final float epsFinal = 0.1f;
@@ -95,17 +93,27 @@ public class DQNPacmanAI {
     }
 
     private float train() {
-        final List<Integer> indexes = IntStream.rangeClosed(0, experiences.size() - 1)
-                .boxed()
-                .collect(Collectors.toList());
-        Collections.shuffle(indexes);
-
+        final List<Integer> indexes = getRandomIndexes();
         final List<Experience> trainingExperiences = new LinkedList<>();
+
         for (int i = 0; i < batchSize; i++) {
             trainingExperiences.add(experiences.get(indexes.get(i)));
         }
 
         return dqn.train(trainingExperiences);
+    }
+
+    private List<Integer> getRandomIndexes() {
+        final List<Integer> indexes = new ArrayList<>();
+        int index;
+        while (indexes.size() < batchSize) {
+            index = (int) (Math.random() * experiences.size());
+            if (!indexes.contains(index)) {
+                indexes.add(index);
+            }
+        }
+
+        return indexes;
     }
 
     private Direction getMove(DQNGameState state) {
