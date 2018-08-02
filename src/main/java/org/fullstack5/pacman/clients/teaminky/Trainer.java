@@ -15,13 +15,11 @@ import org.fullstack5.pacman.clients.teampacman.ClientUtils;
 
 import java.io.IOException;
 import java.time.Duration;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 public class Trainer implements Runnable {
     private static final int MAZE_ID = 1;
-    private final List<Integer> scores = new ArrayList<>();
     private long gameDelay;
     private long paintDelay;
     private Maze maze;
@@ -29,8 +27,6 @@ public class Trainer implements Runnable {
     private PacmanGui gui;
     private AStarGhostAI ghostAI;
     private DQNPacmanAI pacmanAI;
-    private int lostCounter;
-    private int wonCounter;
 
     private Trainer(long gameDelay) {
         try {
@@ -108,8 +104,7 @@ public class Trainer implements Runnable {
 
     private void finishGame(GameState state) {
         finishPacman(state);
-        updateStats(state);
-        printStats();
+        printStats(state);
     }
 
     private void finishPacman(GameState state) {
@@ -117,20 +112,14 @@ public class Trainer implements Runnable {
         pacmanAI.resetState();
     }
 
-    private void updateStats(GameState state) {
+    private void printStats(GameState state) {
         state.getResult().ifPresent(result -> {
             if (result == Result.PACMAN_WON) {
-                wonCounter++;
+                System.out.println(String.format("result: %s; score: %d", "WON", state.getPacmanScore()));
             } else {
-                lostCounter++;
+                System.out.println(String.format("result: %s; score: %d", "LOST", state.getPacmanScore()));
             }
         });
-        scores.add(state.getPacmanScore());
-    }
-
-    private void printStats() {
-        double avgScore = scores.stream().mapToDouble(x -> x).average().orElse(0.0);
-        System.out.println(String.format("won: %d; lost: %d; score: %d, average: %f", wonCounter, lostCounter, scores.get(scores.size() - 1), avgScore));
     }
 
     private void waitGameDelay() {
