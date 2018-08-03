@@ -16,7 +16,7 @@ import java.util.List;
 public class DQN {
     private static final String COST = "cost";
     private static final String GLOBAL_STEP = "global_step";
-    private static final int CHECKPOINT_SAVE_COUNT = 1000;
+    private static final int CHECKPOINT_SAVE_COUNT = 10000;
     private static final String X = "x";
     private static final String Q_T = "q_t";
     private static final String ACTIONS = "actions";
@@ -32,14 +32,13 @@ public class DQN {
     private static final int N_ACTIONS = 4;
     private static final int N_OUTPUTS = 4;
     private static final String checkpointPath = "checkpoint";
-    private static final InputStream modelInputStream;
-
-    static {
-        modelInputStream = DQN.class.getClassLoader().getResourceAsStream("models/graph.pb");
-    }
-
     private final int cols;
     private final int rows;
+    Tensor<Float> t_x;
+    Tensor<Float> t_q;
+    Tensor<Float> t_actions;
+    Tensor<Float> t_rewards;
+    Tensor<Float> t_terminals;
     private Session sess;
     private Tensor<String> checkpointPrefix;
     private long checkpointCount = 0;
@@ -52,7 +51,9 @@ public class DQN {
 
     private void init() {
         try {
+            InputStream modelInputStream = DQN.class.getClassLoader().getResourceAsStream("models/graph.pb");
             final byte[] graphDef = IOUtils.toByteArray(modelInputStream);
+            modelInputStream.close();
             final Graph graph = new Graph();
             sess = new Session(graph);
             graph.importGraphDef(graphDef);
@@ -78,19 +79,19 @@ public class DQN {
     }
 
     public Direction getMove(DQNGameState state) {
-        final Tensor<Float> x = Tensor.create(state.getX(), Float.class);
-        final Tensor<Float> q_t = Tensor.create(0.0f, Float.class);
-        final Tensor<Float> actions = Tensor.create(new float[1][N_ACTIONS], Float.class);
-        final Tensor<Float> rewards = Tensor.create(0.0f, Float.class);
-        final Tensor<Float> terminals = Tensor.create(0.0f, Float.class);
+        t_x = Tensor.create(state.getX(), Float.class);
+        t_q = Tensor.create(0.0f, Float.class);
+        t_actions = Tensor.create(new float[1][N_ACTIONS], Float.class);
+        t_rewards = Tensor.create(0.0f, Float.class);
+        t_terminals = Tensor.create(0.0f, Float.class);
         final float[][] y = new float[1][N_OUTPUTS];
 
         sess.runner()
-                .feed(X, x)
-                .feed(Q_T, q_t)
-                .feed(ACTIONS, actions)
-                .feed(REWARDS, rewards)
-                .feed(TERMINALS, terminals)
+                .feed(X, t_x)
+                .feed(Q_T, t_q)
+                .feed(ACTIONS, t_actions)
+                .feed(REWARDS, t_rewards)
+                .feed(TERMINALS, t_terminals)
                 .fetch(FC_4_OUTPUTS)
                 .run()
                 .get(0)
@@ -125,11 +126,11 @@ public class DQN {
             actions[i] = getActionFromDirection(experiences.get(i).getLastDirection());
         }
 
-        Tensor<Float> t_x = Tensor.create(currentStates, Float.class);
-        Tensor<Float> t_q = Tensor.create(q, Float.class);
-        final Tensor<Float> t_actions = Tensor.create(actions, Float.class);
-        final Tensor<Float> t_rewards = Tensor.create(rewards, Float.class);
-        final Tensor<Float> t_terminals = Tensor.create(terminals, Float.class);
+        t_x = Tensor.create(currentStates, Float.class);
+        t_q = Tensor.create(q, Float.class);
+        t_actions = Tensor.create(actions, Float.class);
+        t_rewards = Tensor.create(rewards, Float.class);
+        t_terminals = Tensor.create(terminals, Float.class);
 
         final float[][] y = new float[experiences.size()][N_OUTPUTS];
 
