@@ -162,6 +162,9 @@ public class DQN {
             q[i] = maxValue;
         }
 
+        t_x.close();
+        t_q.close();
+
         t_x = Tensor.create(previousStates, Float.class);
         t_q = Tensor.create(q, Float.class);
 
