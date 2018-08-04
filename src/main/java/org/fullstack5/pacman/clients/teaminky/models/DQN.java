@@ -16,7 +16,7 @@ import java.util.List;
 public class DQN {
     private static final String COST = "cost";
     private static final String GLOBAL_STEP = "global_step";
-    private static final int CHECKPOINT_SAVE_COUNT = 10000;
+    private static final int CHECKPOINT_SAVE_COUNT = 1000;
     private static final String X = "x";
     private static final String Q_T = "q_t";
     private static final String ACTIONS = "actions";
