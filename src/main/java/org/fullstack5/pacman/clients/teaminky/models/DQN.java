@@ -34,11 +34,11 @@ public class DQN {
     private static final String checkpointPath = "checkpoint";
     private final int cols;
     private final int rows;
-    Tensor<Float> t_x;
-    Tensor<Float> t_q;
-    Tensor<Float> t_actions;
-    Tensor<Float> t_rewards;
-    Tensor<Float> t_terminals;
+    private Tensor<Float> t_x;
+    private Tensor<Float> t_q;
+    private Tensor<Float> t_actions;
+    private Tensor<Float> t_rewards;
+    private Tensor<Float> t_terminals;
     private Session sess;
     private Tensor<String> checkpointPrefix;
     private long checkpointCount = 0;

@@ -96,8 +96,8 @@ public class DQNPacmanAI {
         final List<Integer> indexes = getRandomIndexes();
         final List<Experience> trainingExperiences = new LinkedList<>();
 
-        for (int i = 0; i < batchSize; i++) {
-            trainingExperiences.add(experiences.get(indexes.get(i)));
+        for (int i : indexes) {
+            trainingExperiences.add(experiences.get(i));
         }
 
         return dqn.train(trainingExperiences);
