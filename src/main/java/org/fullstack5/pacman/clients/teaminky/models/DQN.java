@@ -97,6 +97,12 @@ public class DQN {
                 .get(0)
                 .copyTo(y);
 
+        t_x.close();
+        t_q.close();
+        t_actions.close();
+        t_rewards.close();
+        t_terminals.close();
+
         float maxValue = 0.0f;
         int maxIndex = 0;
 
@@ -170,6 +176,12 @@ public class DQN {
                 .run()
                 .get(0)
                 .floatValue();
+
+        t_x.close();
+        t_q.close();
+        t_actions.close();
+        t_rewards.close();
+        t_terminals.close();
 
         checkpointCount++;
         if (checkpointCount % CHECKPOINT_SAVE_COUNT == 0) {
