@@ -19,10 +19,10 @@ public class DQNPacmanAI {
     private static final int trainingStart = 10000;
     private static final int batchSize = 32;
     private static final float REWARD_WON = 100.0f;
-    private static final float REWARD_LOST = -100.0f;
+    private static final float REWARD_LOST = -500.0f;
     private static final float REWARD_GHOST_EATEN = 50.0f;
     private static final float REWARD_DOT_OR_CAPSULE_EATEN = 10.0f;
-    private static final float REWARD_PENALTY = -1.0f;
+    private static final float REWARD_PENALTY = -10.0f;
     private final Maze maze;
     private final DQN dqn;
     private final LinkedList<Experience> experiences = new LinkedList<>();
