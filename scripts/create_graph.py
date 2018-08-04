@@ -44,7 +44,7 @@ o2_shape = o2.get_shape().as_list()
 
 # Layer 3 (Fully connected)
 layer_name = 'fc3';
-hiddens = 256;
+hiddens = 512;
 dim = o2_shape[1] * o2_shape[2] * o2_shape[3]
 o2_flat = tf.reshape(o2, [-1, dim], name=layer_name + '_input_flat')
 w3 = tf.Variable(tf.random_normal([dim, hiddens], stddev=0.01),
@@ -56,7 +56,7 @@ o3 = tf.nn.relu(ip3, name=layer_name + '_activations')
 # Layer 4
 layer_name = 'fc4';
 hiddens = 4;
-dim = 256
+dim = 512
 w4 = tf.Variable(tf.random_normal([dim, hiddens], stddev=0.01),
                  name=layer_name + '_weights')
 b4 = tf.Variable(tf.constant(0.1, shape=[hiddens]), name=layer_name + '_biases')
