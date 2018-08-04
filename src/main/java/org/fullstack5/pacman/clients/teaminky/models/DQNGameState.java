@@ -59,7 +59,7 @@ public final class DQNGameState {
     private static float[][] createPacman(Maze maze, GameState gameState) {
         float[][] pacman = new float[maze.getWidth()][maze.getHeight()];
         Position position = gameState.getPacman().getCurrentPosition();
-        pacman[position.getX() - 1][position.getY() - 1] = 1.0f;
+        pacman[position.getX()][position.getY()] = 1.0f;
         return pacman;
     }
 
@@ -67,7 +67,7 @@ public final class DQNGameState {
         float[][] dot = new float[maze.getWidth()][maze.getHeight()];
 
         for (Position position : gameState.getRemainingDots()) {
-            dot[position.getX() - 1][position.getY() - 1] = 1.0f;
+            dot[position.getX()][position.getY()] = 1.0f;
         }
 
         return dot;
@@ -77,7 +77,7 @@ public final class DQNGameState {
         float[][] capsules = new float[maze.getWidth()][maze.getHeight()];
 
         for (Position position : gameState.getRemainingPellets()) {
-            capsules[position.getX() - 1][position.getY() - 1] = 1.0f;
+            capsules[position.getX()][position.getY()] = 1.0f;
         }
 
         return capsules;
@@ -89,7 +89,7 @@ public final class DQNGameState {
         for (MovingPiece ghost : DQNGameState.getGhosts(gameState)) {
             if (!ghost.isVulnerable()) {
                 position = ghost.getCurrentPosition();
-                ghosts[position.getX() - 1][position.getY() - 1] = 1.0f;
+                ghosts[position.getX()][position.getY()] = 1.0f;
             }
         }
         return ghosts;
@@ -101,7 +101,7 @@ public final class DQNGameState {
         for (MovingPiece ghost : DQNGameState.getGhosts(gameState)) {
             if (ghost.isVulnerable()) {
                 position = ghost.getCurrentPosition();
-                scaredGhosts[position.getX() - 1][position.getY() - 1] = 1.0f;
+                scaredGhosts[position.getX()][position.getY()] = 1.0f;
             }
         }
         return scaredGhosts;

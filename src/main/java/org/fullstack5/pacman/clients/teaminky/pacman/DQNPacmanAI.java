@@ -42,23 +42,27 @@ public class DQNPacmanAI {
     }
 
     public Direction runAI(GameState gameState) {
-        final DQNGameState currentState = DQNGameState.createState(maze, gameState);
+        try {
+            final DQNGameState currentState = DQNGameState.createState(maze, gameState);
 
-        if (previousState != null) {
-            localCount++;
+            if (previousState != null) {
+                localCount++;
 
-            observationStep(currentState);
-            if (localCount > trainingStart) {
-                float cost = train();
-                updateGlobalStep();
-                updateEps();
+                observationStep(currentState);
+                if (localCount > trainingStart) {
+                    float cost = train();
+                    updateGlobalStep();
+                    updateEps();
 
-                System.out.println(String.format("global step: %d; cost: %f", globalStep, cost));
+                    System.out.println(String.format("global step: %d; cost: %f", globalStep, cost));
+                }
             }
-        }
 
-        previousState = currentState;
-        lastDirection = getMove(currentState);
+            previousState = currentState;
+            lastDirection = getMove(currentState);
+        } catch (Exception ignored) {
+            lastDirection = Direction.random();
+        }
 
         return lastDirection;
     }
