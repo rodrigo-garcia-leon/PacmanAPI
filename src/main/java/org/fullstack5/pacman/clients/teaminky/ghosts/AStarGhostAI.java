@@ -29,8 +29,12 @@ public final class AStarGhostAI {
         for (int i = 0; i < GHOST_COUNT; i++) {
             final MovingPiece ghost = ClientUtils.getGhost(state, i);
             final MovingPiece pacman = state.getPacman();
-            final List<WeightedPosition> path = calculateAStarPath(maze, ghost, pacman);
-            directions.add(path.get(0).getDirectionToPosition());
+            try {
+                final List<WeightedPosition> path = calculateAStarPath(maze, ghost, pacman);
+                directions.add(path.get(0).getDirectionToPosition());
+            } catch (Exception ignored) {
+                directions.add(Direction.random());
+            }
         }
         return directions;
     }
