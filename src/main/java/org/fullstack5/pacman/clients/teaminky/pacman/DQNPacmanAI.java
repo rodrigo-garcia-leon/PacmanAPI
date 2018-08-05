@@ -15,7 +15,7 @@ import java.util.List;
 public class DQNPacmanAI {
     private static final float epsFinal = 0.1f;
     private static final float epsStep = 10000.0f;
-    private static final int replayMemorySize = 100;
+    private static final int replayMemorySize = 1000;
     private static final int trainingStart = 5000;
     private static final int batchSize = 32;
     private static final float REWARD_WON = 100.0f;
