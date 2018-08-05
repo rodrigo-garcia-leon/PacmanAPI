@@ -103,7 +103,7 @@ public class DQN {
         t_rewards.close();
         t_terminals.close();
 
-        float maxValue = 0.0f;
+        float maxValue = y[0][0];
         int maxIndex = 0;
 
         for (int i = 0; i < N_OUTPUTS; i++) {
@@ -153,7 +153,7 @@ public class DQN {
 
         float maxValue;
         for (int i = 0; i < y.length; i++) {
-            maxValue = 0.0f;
+            maxValue = y[i][0];
             for (int j = 0; j < y[i].length; j++) {
                 if (y[i][j] > maxValue) {
                     maxValue = y[i][j];
