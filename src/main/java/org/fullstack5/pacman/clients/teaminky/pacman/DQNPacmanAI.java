@@ -18,6 +18,7 @@ public class DQNPacmanAI {
     private static final int replayMemorySize = 1000;
     private static final int trainingStart = 5000;
     private static final int batchSize = 32;
+    private static final int terminalSize = 4;
     private static final float REWARD_WON = 100.0f;
     private static final float REWARD_LOST = -500.0f;
     private static final float REWARD_GHOST_EATEN = 50.0f;
@@ -26,6 +27,7 @@ public class DQNPacmanAI {
     private final Maze maze;
     private final DQN dqn;
     private final LinkedList<Experience> experiences = new LinkedList<>();
+    private final LinkedList<Experience> terminal = new LinkedList<>();
     private DQNGameState previousState;
     private int globalStep;
     private float eps = 1.0f;
@@ -75,10 +77,18 @@ public class DQNPacmanAI {
         final float reward = calculateReward(state);
         final Experience experience = new Experience(previousState, reward, lastDirection, state);
 
-        experiences.addFirst(experience);
-        if (experiences.size() > replayMemorySize) {
-            experiences.removeLast();
+        if (experience.getCurrentState().getResult().isPresent()) {
+            terminal.addFirst(experience);
+            if (terminal.size() > terminalSize) {
+                terminal.removeLast();
+            }
+        } else {
+            experiences.addFirst(experience);
+            if (experiences.size() > replayMemorySize) {
+                experiences.removeLast();
+            }
         }
+
     }
 
     private float calculateReward(DQNGameState state) {
@@ -97,20 +107,21 @@ public class DQNPacmanAI {
     }
 
     private float train() {
-        final List<Integer> indexes = getRandomIndexes();
+        final List<Integer> indexes = getRandomIndexes(batchSize - terminal.size());
         final List<Experience> trainingExperiences = new LinkedList<>();
 
         for (int i : indexes) {
             trainingExperiences.add(experiences.get(i));
         }
+        trainingExperiences.addAll(terminal);
 
         return dqn.train(trainingExperiences);
     }
 
-    private List<Integer> getRandomIndexes() {
+    private List<Integer> getRandomIndexes(int n) {
         final List<Integer> indexes = new ArrayList<>();
         int index;
-        while (indexes.size() < batchSize) {
+        while (indexes.size() < n) {
             index = (int) (Math.random() * experiences.size());
             if (!indexes.contains(index)) {
                 indexes.add(index);
