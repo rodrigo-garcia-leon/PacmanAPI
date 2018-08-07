@@ -132,8 +132,7 @@ public class DQNPacmanAI {
     }
 
     private Direction getMove(DQNGameState state) {
-        return dqn.getMove(state);
-//        return Math.random() > eps ? dqn.getMove(state) : Direction.random();
+        return Math.random() > eps ? dqn.getMove(state) : Direction.random();
     }
 
     public void resetState() {
