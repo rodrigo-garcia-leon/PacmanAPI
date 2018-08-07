@@ -47,7 +47,7 @@ public final class ServerComm {
     /**
      * @return the game id.
      */
-    static String startGame() {
+    public static String startGame() {
         final RegisterGameRequest request = new RegisterGameRequest();
         request.setStepDuration(Duration.ofMillis(100L));
         return WebClient.create(URL).post()
@@ -60,7 +60,7 @@ public final class ServerComm {
                 .getGameId();
     }
 
-    static Flux<GameState> establishGameStateFlux(final String gameId) {
+    public static Flux<GameState> establishGameStateFlux(final String gameId) {
         final StateRequest request = new StateRequest(gameId);
         return WebClient.create(URL).post()
                 .uri("/current-state")
