@@ -26,6 +26,7 @@ hs_err_pid*
 
 target/
 .DS_Store
+checkpoint
 archive
 .ipynb_checkpoints
 stats.txt
